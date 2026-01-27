@@ -8,9 +8,13 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![GitHub](https://img.shields.io/badge/GitHub-tigusigalpa%2Fcoingecko--go-blue)](https://github.com/tigusigalpa/coingecko-go)
 
-**The most comprehensive Golang library for CoinGecko API integration** - Access real-time cryptocurrency prices, market data, historical charts, DeFi analytics, NFT data, and more with a type-safe, production-ready Go client.
+**The most comprehensive Golang library for CoinGecko API integration** - Access real-time cryptocurrency prices, market
+data, historical charts, DeFi analytics, NFT data, and more with a type-safe, production-ready Go client.
 
-Perfect for building crypto trading bots, portfolio trackers, market analysis tools, DeFi applications, and blockchain data platforms.
+**📦 Package:** [pkg.go.dev/github.com/tigusigalpa/coingecko-go](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
+
+Perfect for building crypto trading bots, portfolio trackers, market analysis tools, DeFi applications, and blockchain
+data platforms.
 
 [Features](#-features) • [Installation](#-installation) • [Quick Start](#-quick-start) • [Getting Started](#-getting-started-guide) • [API Documentation](#-api-documentation) • [Examples](#-real-world-examples)
 
@@ -20,7 +24,9 @@ Perfect for building crypto trading bots, portfolio trackers, market analysis to
 
 ## 🌟 Why Choose CoinGecko Go Client?
 
-This **Go cryptocurrency API library** provides enterprise-grade access to CoinGecko's comprehensive crypto market data. Whether you're building a **Bitcoin price tracker**, **Ethereum market analyzer**, **DeFi portfolio manager**, or **crypto trading bot**, this library offers everything you need:
+This **Go cryptocurrency API library** provides enterprise-grade access to CoinGecko's comprehensive crypto market data.
+Whether you're building a **Bitcoin price tracker**, **Ethereum market analyzer**, **DeFi portfolio manager**, or *
+*crypto trading bot**, this library offers everything you need:
 
 - **14+ API Endpoint Groups** covering coins, exchanges, DeFi, NFTs, derivatives, and more
 - **Real-time WebSocket Support** for live cryptocurrency price feeds
@@ -34,7 +40,8 @@ This **Go cryptocurrency API library** provides enterprise-grade access to CoinG
 
 ### Core Capabilities
 
-- ✅ **Complete API Coverage** - All CoinGecko API v3 endpoints implemented (Simple, Coins, Contracts, Exchanges, DeFi, NFTs, and more)
+- ✅ **Complete API Coverage** - All CoinGecko API v3 endpoints implemented (Simple, Coins, Contracts, Exchanges, DeFi,
+  NFTs, and more)
 - 🔐 **Pro API Support** - Full support for CoinGecko Pro API with authentication and higher rate limits
 - 💎 **Modern Go** - Built with Go 1.21+ features, generics support, and idiomatic Go patterns
 - 🛡️ **Type Safety** - Strongly typed parameters and return values prevent runtime errors
@@ -327,7 +334,8 @@ func (c *Cache) Set(key string, value interface{}) {
 
 ### Complete API Endpoint Reference
 
-The CoinGecko Go client provides access to all major cryptocurrency data endpoints, organized into 14 logical API groups for easy navigation:
+The CoinGecko Go client provides access to all major cryptocurrency data endpoints, organized into 14 logical API groups
+for easy navigation:
 
 - **[Simple API](#simple-api)** - Quick price lookups and supported currencies
 - **[Coins API](#coins-api)** - Comprehensive coin data, markets, and historical charts
@@ -917,7 +925,8 @@ make lint
 
 ## 🤝 Contributing to CoinGecko Go Client
 
-We welcome contributions from the cryptocurrency and Go developer community! Whether you're fixing bugs, adding new features, improving documentation, or creating examples, your help is appreciated.
+We welcome contributions from the cryptocurrency and Go developer community! Whether you're fixing bugs, adding new
+features, improving documentation, or creating examples, your help is appreciated.
 
 ### How to Contribute
 
@@ -961,7 +970,9 @@ cg := coingecko.New(
 
 ### Reporting Security Issues
 
-If you discover any security vulnerabilities or issues related to API key handling, cryptocurrency data integrity, or other security concerns, please email **sovletig@gmail.com** directly instead of using the public issue tracker. We take security seriously and will respond promptly.
+If you discover any security vulnerabilities or issues related to API key handling, cryptocurrency data integrity, or
+other security concerns, please email **sovletig@gmail.com** directly instead of using the public issue tracker. We take
+security seriously and will respond promptly.
 
 ## 📄 License
 
@@ -977,18 +988,21 @@ The MIT License (MIT). Please see [License File](LICENSE) for more information.
 ## 🔗 Useful Links and Resources
 
 ### Project Resources
+
 - **GitHub Repository**: [github.com/tigusigalpa/coingecko-go](https://github.com/tigusigalpa/coingecko-go)
 - **Issue Tracker**: [Report bugs and request features](https://github.com/tigusigalpa/coingecko-go/issues)
 - **Changelog**: [View version history](CHANGELOG.md)
 - **Contributing Guide**: [Learn how to contribute](CONTRIBUTING.md)
 
 ### CoinGecko Resources
+
 - **CoinGecko API Documentation**: [docs.coingecko.com](https://docs.coingecko.com) - Complete API reference
 - **CoinGecko Website**: [coingecko.com](https://www.coingecko.com) - Cryptocurrency prices and market data
 - **CoinGecko Pro**: [coingecko.com/en/api](https://www.coingecko.com/en/api) - Professional API plans
 - **API Authentication Guide**: [Setting up your API key](https://docs.coingecko.com/docs/setting-up-your-api-key)
 
 ### Go Resources
+
 - **Go Documentation**: [golang.org/doc](https://golang.org/doc)
 - **Go Modules**: [Go dependency management](https://go.dev/ref/mod)
 
@@ -1009,7 +1023,9 @@ This Go library is perfect for building:
 
 ## 🏷️ Keywords
 
-Go cryptocurrency API, CoinGecko Go client, Bitcoin price API Go, Ethereum market data Go, crypto trading bot Go, DeFi API Go, NFT data API, cryptocurrency portfolio tracker, Go blockchain library, crypto market analysis Go, real-time crypto prices, historical cryptocurrency data, Go crypto SDK
+Go cryptocurrency API, CoinGecko Go client, Bitcoin price API Go, Ethereum market data Go, crypto trading bot Go, DeFi
+API Go, NFT data API, cryptocurrency portfolio tracker, Go blockchain library, crypto market analysis Go, real-time
+crypto prices, historical cryptocurrency data, Go crypto SDK
 
 ---
 
