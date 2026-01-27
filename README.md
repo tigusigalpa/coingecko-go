@@ -1,6 +1,6 @@
 # CoinGecko Go API Client - Cryptocurrency Data Integration Library
 
-![CoinGecko Golang SDK](https://github.com/user-attachments/assets/2f5f44bb-df92-4206-8233-05a94397d29a)
+![CoinGecko Golang SDK](https://github.com/user-attachments/assets/f0095cd2-0e50-44c2-94a6-4af1ca483873)
 
 <div align="center">
 
