@@ -1,0 +1,54 @@
+package coingecko
+
+import "encoding/json"
+
+type GlobalAPI struct {
+	client *Client
+}
+
+func (g *GlobalAPI) Crypto() (map[string]interface{}, error) {
+	data, err := g.client.get("/global", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (g *GlobalAPI) DeFi() (map[string]interface{}, error) {
+	data, err := g.client.get("/global/decentralized_finance_defi", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (g *GlobalAPI) MarketCapChart(days int, vsCurrency string) (map[string]interface{}, error) {
+	params := map[string]string{
+		"days":        intToString(days),
+		"vs_currency": vsCurrency,
+	}
+
+	data, err := g.client.get("/global/market_cap_chart", params)
+	if err != nil {
+		return nil, err
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
