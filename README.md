@@ -1,12 +1,14 @@
 # CoinGecko Go API Client - Cryptocurrency Data Integration Library
 
+![CoinGecko Golang SDK](https://github.com/user-attachments/assets/2f5f44bb-df92-4206-8233-05a94397d29a)
+
 <div align="center">
 
 [![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.21-blue.svg)](https://golang.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![GitHub](https://img.shields.io/badge/GitHub-tigusigalpa%2Fcoingecko--go-blue)](https://github.com/tigusigalpa/coingecko-go)
 
-**The most comprehensive Go library for CoinGecko API integration** - Access real-time cryptocurrency prices, market data, historical charts, DeFi analytics, NFT data, and more with a type-safe, production-ready Go client.
+**The most comprehensive Golang library for CoinGecko API integration** - Access real-time cryptocurrency prices, market data, historical charts, DeFi analytics, NFT data, and more with a type-safe, production-ready Go client.
 
 Perfect for building crypto trading bots, portfolio trackers, market analysis tools, DeFi applications, and blockchain data platforms.
 
@@ -62,7 +64,7 @@ This **Go cryptocurrency API library** provides enterprise-grade access to CoinG
 
 ## 📦 Installation
 
-Install the CoinGecko Go client using Go modules:
+Install the CoinGecko Golang client using Go modules:
 
 ```bash
 go get github.com/tigusigalpa/coingecko-go
@@ -76,7 +78,7 @@ import coingecko "github.com/tigusigalpa/coingecko-go"
 
 ## 🎯 Quick Start
 
-Get up and running with the CoinGecko Go client in under 60 seconds:
+Get up and running with the CoinGecko Golang client in under 60 seconds:
 
 ### Basic Usage - Free API
 
