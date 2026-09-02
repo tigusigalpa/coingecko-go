@@ -5,15 +5,18 @@ import (
 	"fmt"
 )
 
+// ExchangesAPI provides cryptocurrency exchange data.
 type ExchangesAPI struct {
 	client *Client
 }
 
+// ExchangesListOptions configures pagination for List.
 type ExchangesListOptions struct {
 	PerPage *int
 	Page    *int
 }
 
+// List returns cryptocurrency exchanges.
 func (e *ExchangesAPI) List(options *ExchangesListOptions) ([]map[string]interface{}, error) {
 	params := map[string]string{}
 
@@ -39,6 +42,7 @@ func (e *ExchangesAPI) List(options *ExchangesListOptions) ([]map[string]interfa
 	return result, nil
 }
 
+// ListIDMap returns exchange identifiers.
 func (e *ExchangesAPI) ListIDMap() ([]map[string]interface{}, error) {
 	data, err := e.client.get("/exchanges/list", nil)
 	if err != nil {
@@ -53,8 +57,9 @@ func (e *ExchangesAPI) ListIDMap() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
+// Exchange returns data for an exchange ID.
 func (e *ExchangesAPI) Exchange(id string) (map[string]interface{}, error) {
-	data, err := e.client.get("/exchanges/"+id, nil)
+	data, err := e.client.get("/exchanges/"+escapePathSegment(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -67,14 +72,16 @@ func (e *ExchangesAPI) Exchange(id string) (map[string]interface{}, error) {
 	return result, nil
 }
 
+// ExchangeTickersOptions configures filtering for Tickers.
 type ExchangeTickersOptions struct {
-	CoinIDs            []string
+	CoinIDs             []string
 	IncludeExchangeLogo bool
-	Page               *int
-	Depth              *string
-	Order              *string
+	Page                *int
+	Depth               *string
+	Order               *string
 }
 
+// Tickers returns ticker data for an exchange ID.
 func (e *ExchangesAPI) Tickers(id string, options *ExchangeTickersOptions) (map[string]interface{}, error) {
 	params := map[string]string{}
 
@@ -96,7 +103,7 @@ func (e *ExchangesAPI) Tickers(id string, options *ExchangeTickersOptions) (map[
 		}
 	}
 
-	data, err := e.client.get("/exchanges/"+id+"/tickers", params)
+	data, err := e.client.get("/exchanges/"+escapePathSegment(id)+"/tickers", params)
 	if err != nil {
 		return nil, err
 	}
@@ -109,12 +116,13 @@ func (e *ExchangesAPI) Tickers(id string, options *ExchangeTickersOptions) (map[
 	return result, nil
 }
 
+// VolumeChart returns an exchange's volume history for a period.
 func (e *ExchangesAPI) VolumeChart(id string, days int) ([][]interface{}, error) {
 	params := map[string]string{
 		"days": intToString(days),
 	}
 
-	data, err := e.client.get("/exchanges/"+id+"/volume_chart", params)
+	data, err := e.client.get("/exchanges/"+escapePathSegment(id)+"/volume_chart", params)
 	if err != nil {
 		return nil, err
 	}
@@ -127,13 +135,14 @@ func (e *ExchangesAPI) VolumeChart(id string, days int) ([][]interface{}, error)
 	return result, nil
 }
 
+// VolumeChartRange returns an exchange's volume history between Unix timestamps.
 func (e *ExchangesAPI) VolumeChartRange(id string, from int64, to int64) ([][]interface{}, error) {
 	params := map[string]string{
 		"from": fmt.Sprintf("%d", from),
 		"to":   fmt.Sprintf("%d", to),
 	}
 
-	data, err := e.client.get("/exchanges/"+id+"/volume_chart/range", params)
+	data, err := e.client.get("/exchanges/"+escapePathSegment(id)+"/volume_chart/range", params)
 	if err != nil {
 		return nil, err
 	}

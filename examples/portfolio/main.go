@@ -7,10 +7,12 @@ import (
 	coingecko "github.com/tigusigalpa/coingecko-go"
 )
 
+// Portfolio contains cryptocurrency holdings keyed by coin ID.
 type Portfolio struct {
 	Holdings map[string]float64
 }
 
+// CalculateValue returns the portfolio's current value in USD.
 func (p *Portfolio) CalculateValue(cg *coingecko.CoinGecko) (float64, error) {
 	coinIDs := make([]string, 0, len(p.Holdings))
 	for coinID := range p.Holdings {

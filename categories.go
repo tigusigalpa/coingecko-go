@@ -2,15 +2,18 @@ package coingecko
 
 import "encoding/json"
 
+// CategoriesAPI provides access to coin categories.
 type CategoriesAPI struct {
 	client *Client
 }
 
+// Category identifies a CoinGecko coin category.
 type Category struct {
 	CategoryID string `json:"category_id"`
 	Name       string `json:"name"`
 }
 
+// List returns all coin categories.
 func (c *CategoriesAPI) List() ([]Category, error) {
 	data, err := c.client.get("/coins/categories/list", nil)
 	if err != nil {
@@ -25,9 +28,10 @@ func (c *CategoriesAPI) List() ([]Category, error) {
 	return result, nil
 }
 
+// ListWithMarketData returns categories with market data in the requested order.
 func (c *CategoriesAPI) ListWithMarketData(order *string) ([]map[string]interface{}, error) {
 	params := map[string]string{}
-	
+
 	if order != nil {
 		params["order"] = *order
 	}

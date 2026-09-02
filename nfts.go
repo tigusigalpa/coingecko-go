@@ -2,10 +2,12 @@ package coingecko
 
 import "encoding/json"
 
+// NFTsAPI provides NFT collection and market data.
 type NFTsAPI struct {
 	client *Client
 }
 
+// NFTsListOptions configures filtering and pagination for List.
 type NFTsListOptions struct {
 	Order           *string
 	AssetPlatformID *string
@@ -13,6 +15,7 @@ type NFTsListOptions struct {
 	Page            *int
 }
 
+// List returns NFT collections.
 func (n *NFTsAPI) List(options *NFTsListOptions) ([]map[string]interface{}, error) {
 	params := map[string]string{}
 
@@ -44,8 +47,9 @@ func (n *NFTsAPI) List(options *NFTsListOptions) ([]map[string]interface{}, erro
 	return result, nil
 }
 
+// Collection returns an NFT collection by ID.
 func (n *NFTsAPI) Collection(id string) (map[string]interface{}, error) {
-	data, err := n.client.get("/nfts/"+id, nil)
+	data, err := n.client.get("/nfts/"+escapePathSegment(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +62,9 @@ func (n *NFTsAPI) Collection(id string) (map[string]interface{}, error) {
 	return result, nil
 }
 
+// CollectionByContract returns an NFT collection by platform and contract address.
 func (n *NFTsAPI) CollectionByContract(assetPlatformID string, contractAddress string) (map[string]interface{}, error) {
-	data, err := n.client.get("/nfts/"+assetPlatformID+"/contract/"+contractAddress, nil)
+	data, err := n.client.get("/nfts/"+escapePathSegment(assetPlatformID)+"/contract/"+escapePathSegment(contractAddress), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -72,6 +77,7 @@ func (n *NFTsAPI) CollectionByContract(assetPlatformID string, contractAddress s
 	return result, nil
 }
 
+// NFTsMarketsOptions configures filtering and pagination for Markets.
 type NFTsMarketsOptions struct {
 	AssetPlatformID *string
 	Order           *string
@@ -79,6 +85,7 @@ type NFTsMarketsOptions struct {
 	Page            *int
 }
 
+// Markets returns NFT market data.
 func (n *NFTsAPI) Markets(options *NFTsMarketsOptions) ([]map[string]interface{}, error) {
 	params := map[string]string{}
 
@@ -110,12 +117,13 @@ func (n *NFTsAPI) Markets(options *NFTsMarketsOptions) ([]map[string]interface{}
 	return result, nil
 }
 
+// MarketChart returns market history for an NFT collection.
 func (n *NFTsAPI) MarketChart(id string, days int) (map[string]interface{}, error) {
 	params := map[string]string{
 		"days": intToString(days),
 	}
 
-	data, err := n.client.get("/nfts/"+id+"/market_chart", params)
+	data, err := n.client.get("/nfts/"+escapePathSegment(id)+"/market_chart", params)
 	if err != nil {
 		return nil, err
 	}
@@ -128,12 +136,13 @@ func (n *NFTsAPI) MarketChart(id string, days int) (map[string]interface{}, erro
 	return result, nil
 }
 
+// MarketChartByContract returns NFT market history by contract address.
 func (n *NFTsAPI) MarketChartByContract(assetPlatformID string, contractAddress string, days int) (map[string]interface{}, error) {
 	params := map[string]string{
 		"days": intToString(days),
 	}
 
-	data, err := n.client.get("/nfts/"+assetPlatformID+"/contract/"+contractAddress+"/market_chart", params)
+	data, err := n.client.get("/nfts/"+escapePathSegment(assetPlatformID)+"/contract/"+escapePathSegment(contractAddress)+"/market_chart", params)
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +155,9 @@ func (n *NFTsAPI) MarketChartByContract(assetPlatformID string, contractAddress 
 	return result, nil
 }
 
+// Tickers returns ticker data for an NFT collection.
 func (n *NFTsAPI) Tickers(id string) (map[string]interface{}, error) {
-	data, err := n.client.get("/nfts/"+id+"/tickers", nil)
+	data, err := n.client.get("/nfts/"+escapePathSegment(id)+"/tickers", nil)
 	if err != nil {
 		return nil, err
 	}

@@ -5,9 +5,9 @@
 //
 // # Features
 //
-//   - Complete API coverage for all CoinGecko endpoints
+//   - Coverage for the CoinGecko endpoint groups exposed by this package
 //   - Support for both Free and Pro API tiers
-//   - Type-safe API with strongly typed parameters
+//   - Typed request parameters and selected response types
 //   - Configurable HTTP client with custom options
 //   - WebSocket support for real-time data
 //   - Comprehensive error handling

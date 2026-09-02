@@ -1,30 +1,31 @@
-# CoinGecko Go Client
+# Coingecko Golang Client
 
-![CoinGecko Golang SDK](https://github.com/user-attachments/assets/f0095cd2-0e50-44c2-94a6-4af1ca483873)
+![CoinGecko Golang SDK](https://i.postimg.cc/rpL6MPf7/coingecko-golang-hero-github.jpg)
 
-<div align="center">
+[![CI](https://github.com/tigusigalpa/coingecko-go/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/ci.yml)
+[![Tests](https://github.com/tigusigalpa/coingecko-go/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/test.yml)
+[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat-square&logo=go)](https://golang.org/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![CodeQL](https://github.com/tigusigalpa/coingecko-go/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/codeql.yml)
+[![Codecov](https://codecov.io/gh/tigusigalpa/coingecko-go/graph/badge.svg)](https://codecov.io/gh/tigusigalpa/coingecko-go)
+[![GitHub Release](https://img.shields.io/github/v/release/tigusigalpa/coingecko-go?style=flat-square)](https://github.com/tigusigalpa/coingecko-go/releases)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue?style=flat-square&logo=go)](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
 
-[![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.21-blue.svg)](https://golang.org)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-tigusigalpa%2Fcoingecko--go-blue)](https://github.com/tigusigalpa/coingecko-go)
-
-Go client for the [CoinGecko API](https://docs.coingecko.com). Prices, market data, charts, exchanges, NFTs, DeFi — all endpoints, typed responses, minimal dependencies.
+Go client for the [CoinGecko API](https://docs.coingecko.com). Prices, market data, charts, exchanges, NFTs, DeFi, and WebSocket subscriptions with minimal dependencies.
 
 **Package:** [pkg.go.dev/github.com/tigusigalpa/coingecko-go](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
 
 [Installation](#installation) • [Quick Start](#quick-start) • [API Reference](#api-reference) • [Examples](#examples)
 
-</div>
-
 ---
 
 ## Features
 
-- All CoinGecko API v3 endpoints: Simple, Coins, Contracts, Exchanges, Derivatives, NFTs, Categories, Global, Search, Ping
-- Pro API support (API key auth, higher rate limits)
-- WebSocket for live price feeds
+- CoinGecko API v3 endpoint groups: Simple, Coins, Contracts, Exchanges, Derivatives, NFTs, Categories, Global, Search, Ping
+- Demo and Pro API key authentication
+- Authenticated WebSocket connection and subscription-message helpers for live feeds
 - Configurable HTTP client, timeouts, custom transport
-- Minimal deps — stdlib + `gorilla/websocket`
+- Minimal dependencies — standard library + `gorilla/websocket`
 - Tested, with runnable examples in `examples/`
 
 ## Requirements
@@ -77,6 +78,42 @@ cg := coingecko.New(
     coingecko.WithAPIKey("your-api-key"),
     coingecko.WithProAPI(true),
 )
+```
+
+### WebSocket
+
+WebSocket access requires a Pro API key and `WithProAPI(true)`. Subscribe to a
+channel first, then send the channel's data message through the returned connection:
+
+```go
+package main
+
+import (
+    "context"
+    "log"
+
+    coingecko "github.com/tigusigalpa/coingecko-go"
+    "github.com/gorilla/websocket"
+)
+
+func main() {
+	ctx := context.Background()
+	cg := coingecko.New(
+		coingecko.WithAPIKey("your-pro-api-key"),
+		coingecko.WithProAPI(true),
+	)
+
+	conn, _, err := cg.WebSocket().Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	subscribe, _ := cg.WebSocket().CreateChannelSubscription(coingecko.WebSocketChannelSimplePrice)
+	prices, _ := cg.WebSocket().CreateSimplePriceSubscription([]string{"bitcoin"}, []string{"usd"})
+	_ = conn.WriteMessage(websocket.TextMessage, []byte(subscribe))
+	_ = conn.WriteMessage(websocket.TextMessage, []byte(prices))
+}
 ```
 
 ### Custom HTTP Client
@@ -425,5 +462,4 @@ MIT. See [LICENSE](LICENSE).
 
 - [CoinGecko API docs](https://docs.coingecko.com)
 - [CoinGecko Pro](https://www.coingecko.com/en/api)
-- [Changelog](CHANGELOG.md)
 - [Issues](https://github.com/tigusigalpa/coingecko-go/issues)

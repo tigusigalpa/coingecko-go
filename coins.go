@@ -5,10 +5,12 @@ import (
 	"fmt"
 )
 
+// CoinsAPI provides coin market data, metadata, and historical charts.
 type CoinsAPI struct {
 	client *Client
 }
 
+// CoinListItem identifies a coin returned by the list endpoint.
 type CoinListItem struct {
 	ID        string            `json:"id"`
 	Symbol    string            `json:"symbol"`
@@ -16,6 +18,7 @@ type CoinListItem struct {
 	Platforms map[string]string `json:"platforms,omitempty"`
 }
 
+// List returns all supported coins and, optionally, their platform mappings.
 func (c *CoinsAPI) List(includePlatform bool) ([]CoinListItem, error) {
 	params := map[string]string{}
 	if includePlatform {
@@ -35,6 +38,7 @@ func (c *CoinsAPI) List(includePlatform bool) ([]CoinListItem, error) {
 	return result, nil
 }
 
+// TopGainersLosers returns the top gaining and losing coins for a currency.
 func (c *CoinsAPI) TopGainersLosers(vsCurrency string, duration *string, topCoins *int) (map[string]interface{}, error) {
 	params := map[string]string{
 		"vs_currency": vsCurrency,
@@ -60,6 +64,7 @@ func (c *CoinsAPI) TopGainersLosers(vsCurrency string, duration *string, topCoin
 	return result, nil
 }
 
+// RecentlyAdded returns coins that were recently added to CoinGecko.
 func (c *CoinsAPI) RecentlyAdded() ([]map[string]interface{}, error) {
 	data, err := c.client.get("/coins/list/new", nil)
 	if err != nil {
@@ -74,6 +79,7 @@ func (c *CoinsAPI) RecentlyAdded() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
+// MarketsOptions configures filtering and pagination for Markets.
 type MarketsOptions struct {
 	IDs                   []string
 	Category              *string
@@ -86,6 +92,7 @@ type MarketsOptions struct {
 	Precision             *string
 }
 
+// Markets returns market data for coins in the requested currency.
 func (c *CoinsAPI) Markets(vsCurrency string, options *MarketsOptions) ([]map[string]interface{}, error) {
 	params := map[string]string{
 		"vs_currency": vsCurrency,
@@ -134,6 +141,7 @@ func (c *CoinsAPI) Markets(vsCurrency string, options *MarketsOptions) ([]map[st
 	return result, nil
 }
 
+// CoinOptions controls optional sections returned by Coin.
 type CoinOptions struct {
 	Localization  bool
 	Tickers       bool
@@ -143,6 +151,7 @@ type CoinOptions struct {
 	Sparkline     bool
 }
 
+// Coin returns detailed data for a coin ID.
 func (c *CoinsAPI) Coin(id string, options *CoinOptions) (map[string]interface{}, error) {
 	params := map[string]string{}
 
@@ -162,7 +171,7 @@ func (c *CoinsAPI) Coin(id string, options *CoinOptions) (map[string]interface{}
 		params["sparkline"] = "false"
 	}
 
-	data, err := c.client.get("/coins/"+id, params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id), params)
 	if err != nil {
 		return nil, err
 	}
@@ -175,14 +184,16 @@ func (c *CoinsAPI) Coin(id string, options *CoinOptions) (map[string]interface{}
 	return result, nil
 }
 
+// TickersOptions configures filtering for Tickers.
 type TickersOptions struct {
-	ExchangeIDs        []string
+	ExchangeIDs         []string
 	IncludeExchangeLogo bool
-	Page               *int
-	Order              *string
-	Depth              *string
+	Page                *int
+	Order               *string
+	Depth               *string
 }
 
+// Tickers returns ticker data for a coin ID.
 func (c *CoinsAPI) Tickers(id string, options *TickersOptions) (map[string]interface{}, error) {
 	params := map[string]string{}
 
@@ -204,7 +215,7 @@ func (c *CoinsAPI) Tickers(id string, options *TickersOptions) (map[string]inter
 		}
 	}
 
-	data, err := c.client.get("/coins/"+id+"/tickers", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/tickers", params)
 	if err != nil {
 		return nil, err
 	}
@@ -217,13 +228,14 @@ func (c *CoinsAPI) Tickers(id string, options *TickersOptions) (map[string]inter
 	return result, nil
 }
 
+// History returns historical data for a coin at the supplied date.
 func (c *CoinsAPI) History(id string, date string, localization bool) (map[string]interface{}, error) {
 	params := map[string]string{
 		"date":         date,
 		"localization": boolToString(localization),
 	}
 
-	data, err := c.client.get("/coins/"+id+"/history", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/history", params)
 	if err != nil {
 		return nil, err
 	}
@@ -236,11 +248,13 @@ func (c *CoinsAPI) History(id string, date string, localization bool) (map[strin
 	return result, nil
 }
 
+// MarketChartOptions configures a market-chart response.
 type MarketChartOptions struct {
 	Interval  *string
 	Precision *string
 }
 
+// MarketChart returns historical market data for a coin over a period.
 func (c *CoinsAPI) MarketChart(id string, vsCurrency string, days string, options *MarketChartOptions) (map[string]interface{}, error) {
 	params := map[string]string{
 		"vs_currency": vsCurrency,
@@ -256,7 +270,7 @@ func (c *CoinsAPI) MarketChart(id string, vsCurrency string, days string, option
 		}
 	}
 
-	data, err := c.client.get("/coins/"+id+"/market_chart", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/market_chart", params)
 	if err != nil {
 		return nil, err
 	}
@@ -269,6 +283,7 @@ func (c *CoinsAPI) MarketChart(id string, vsCurrency string, days string, option
 	return result, nil
 }
 
+// MarketChartRange returns historical market data between Unix timestamps.
 func (c *CoinsAPI) MarketChartRange(id string, vsCurrency string, from int64, to int64, precision *string) (map[string]interface{}, error) {
 	params := map[string]string{
 		"vs_currency": vsCurrency,
@@ -280,7 +295,7 @@ func (c *CoinsAPI) MarketChartRange(id string, vsCurrency string, from int64, to
 		params["precision"] = *precision
 	}
 
-	data, err := c.client.get("/coins/"+id+"/market_chart/range", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/market_chart/range", params)
 	if err != nil {
 		return nil, err
 	}
@@ -293,6 +308,7 @@ func (c *CoinsAPI) MarketChartRange(id string, vsCurrency string, from int64, to
 	return result, nil
 }
 
+// OHLC returns open, high, low, and close data for a coin.
 func (c *CoinsAPI) OHLC(id string, vsCurrency string, days string, precision *string) ([][]float64, error) {
 	params := map[string]string{
 		"vs_currency": vsCurrency,
@@ -303,7 +319,7 @@ func (c *CoinsAPI) OHLC(id string, vsCurrency string, days string, precision *st
 		params["precision"] = *precision
 	}
 
-	data, err := c.client.get("/coins/"+id+"/ohlc", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/ohlc", params)
 	if err != nil {
 		return nil, err
 	}
@@ -316,6 +332,7 @@ func (c *CoinsAPI) OHLC(id string, vsCurrency string, days string, precision *st
 	return result, nil
 }
 
+// CirculatingSupplyChart returns a coin's circulating-supply history.
 func (c *CoinsAPI) CirculatingSupplyChart(id string, days string, interval *string) (map[string]interface{}, error) {
 	params := map[string]string{
 		"days": days,
@@ -325,7 +342,7 @@ func (c *CoinsAPI) CirculatingSupplyChart(id string, days string, interval *stri
 		params["interval"] = *interval
 	}
 
-	data, err := c.client.get("/coins/"+id+"/circulating_supply_chart", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/circulating_supply_chart", params)
 	if err != nil {
 		return nil, err
 	}
@@ -338,13 +355,14 @@ func (c *CoinsAPI) CirculatingSupplyChart(id string, days string, interval *stri
 	return result, nil
 }
 
+// CirculatingSupplyChartRange returns circulating-supply history between Unix timestamps.
 func (c *CoinsAPI) CirculatingSupplyChartRange(id string, from int64, to int64) (map[string]interface{}, error) {
 	params := map[string]string{
 		"from": fmt.Sprintf("%d", from),
 		"to":   fmt.Sprintf("%d", to),
 	}
 
-	data, err := c.client.get("/coins/"+id+"/circulating_supply_chart/range", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/circulating_supply_chart/range", params)
 	if err != nil {
 		return nil, err
 	}
@@ -357,6 +375,7 @@ func (c *CoinsAPI) CirculatingSupplyChartRange(id string, from int64, to int64) 
 	return result, nil
 }
 
+// TotalSupplyChart returns a coin's total-supply history.
 func (c *CoinsAPI) TotalSupplyChart(id string, days string, interval *string) (map[string]interface{}, error) {
 	params := map[string]string{
 		"days": days,
@@ -366,7 +385,7 @@ func (c *CoinsAPI) TotalSupplyChart(id string, days string, interval *string) (m
 		params["interval"] = *interval
 	}
 
-	data, err := c.client.get("/coins/"+id+"/total_supply_chart", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/total_supply_chart", params)
 	if err != nil {
 		return nil, err
 	}
@@ -379,13 +398,14 @@ func (c *CoinsAPI) TotalSupplyChart(id string, days string, interval *string) (m
 	return result, nil
 }
 
+// TotalSupplyChartRange returns total-supply history between Unix timestamps.
 func (c *CoinsAPI) TotalSupplyChartRange(id string, from int64, to int64) (map[string]interface{}, error) {
 	params := map[string]string{
 		"from": fmt.Sprintf("%d", from),
 		"to":   fmt.Sprintf("%d", to),
 	}
 
-	data, err := c.client.get("/coins/"+id+"/total_supply_chart/range", params)
+	data, err := c.client.get("/coins/"+escapePathSegment(id)+"/total_supply_chart/range", params)
 	if err != nil {
 		return nil, err
 	}

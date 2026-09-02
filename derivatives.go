@@ -2,13 +2,15 @@ package coingecko
 
 import "encoding/json"
 
+// DerivativesAPI provides derivatives-market data.
 type DerivativesAPI struct {
 	client *Client
 }
 
+// Tickers returns derivative ticker data.
 func (d *DerivativesAPI) Tickers(includeTickers *string) ([]map[string]interface{}, error) {
 	params := map[string]string{}
-	
+
 	if includeTickers != nil {
 		params["include_tickers"] = *includeTickers
 	}
@@ -26,12 +28,14 @@ func (d *DerivativesAPI) Tickers(includeTickers *string) ([]map[string]interface
 	return result, nil
 }
 
+// DerivativesExchangesOptions configures filtering and pagination for Exchanges.
 type DerivativesExchangesOptions struct {
 	Order   *string
 	PerPage *int
 	Page    *int
 }
 
+// Exchanges returns derivatives exchanges.
 func (d *DerivativesAPI) Exchanges(options *DerivativesExchangesOptions) ([]map[string]interface{}, error) {
 	params := map[string]string{}
 
@@ -60,14 +64,15 @@ func (d *DerivativesAPI) Exchanges(options *DerivativesExchangesOptions) ([]map[
 	return result, nil
 }
 
+// Exchange returns derivative data for an exchange ID.
 func (d *DerivativesAPI) Exchange(id string, includeTickers *string) (map[string]interface{}, error) {
 	params := map[string]string{}
-	
+
 	if includeTickers != nil {
 		params["include_tickers"] = *includeTickers
 	}
 
-	data, err := d.client.get("/derivatives/exchanges/"+id, params)
+	data, err := d.client.get("/derivatives/exchanges/"+escapePathSegment(id), params)
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +85,7 @@ func (d *DerivativesAPI) Exchange(id string, includeTickers *string) (map[string
 	return result, nil
 }
 
+// ExchangesList returns identifiers for derivatives exchanges.
 func (d *DerivativesAPI) ExchangesList() ([]map[string]interface{}, error) {
 	data, err := d.client.get("/derivatives/exchanges/list", nil)
 	if err != nil {

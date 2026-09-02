@@ -2,17 +2,20 @@ package coingecko
 
 import "encoding/json"
 
+// SimpleAPI provides simple price and currency endpoints.
 type SimpleAPI struct {
 	client *Client
 }
 
+// SimplePriceOptions configures optional fields returned by Price.
 type SimplePriceOptions struct {
-	IncludeMarketCap      bool
-	Include24hrVol        bool
-	Include24hrChange     bool
-	IncludeLastUpdatedAt  bool
+	IncludeMarketCap     bool
+	Include24hrVol       bool
+	Include24hrChange    bool
+	IncludeLastUpdatedAt bool
 }
 
+// Price returns prices for coin IDs in the requested currencies.
 func (s *SimpleAPI) Price(ids []string, vsCurrencies []string, options *SimplePriceOptions) (map[string]map[string]interface{}, error) {
 	params := map[string]string{
 		"ids":           joinStrings(ids),
@@ -47,13 +50,15 @@ func (s *SimpleAPI) Price(ids []string, vsCurrencies []string, options *SimplePr
 	return result, nil
 }
 
+// TokenPriceOptions configures optional fields returned by TokenPrice.
 type TokenPriceOptions struct {
-	IncludeMarketCap      bool
-	Include24hrVol        bool
-	Include24hrChange     bool
-	IncludeLastUpdatedAt  bool
+	IncludeMarketCap     bool
+	Include24hrVol       bool
+	Include24hrChange    bool
+	IncludeLastUpdatedAt bool
 }
 
+// TokenPrice returns token prices by platform and contract address.
 func (s *SimpleAPI) TokenPrice(assetPlatform string, contractAddresses []string, vsCurrencies []string, options *TokenPriceOptions) (map[string]map[string]interface{}, error) {
 	params := map[string]string{
 		"contract_addresses": joinStrings(contractAddresses),
@@ -75,7 +80,7 @@ func (s *SimpleAPI) TokenPrice(assetPlatform string, contractAddresses []string,
 		}
 	}
 
-	data, err := s.client.get("/simple/token_price/"+assetPlatform, params)
+	data, err := s.client.get("/simple/token_price/"+escapePathSegment(assetPlatform), params)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +93,7 @@ func (s *SimpleAPI) TokenPrice(assetPlatform string, contractAddresses []string,
 	return result, nil
 }
 
+// SupportedVsCurrencies returns all supported quote currencies.
 func (s *SimpleAPI) SupportedVsCurrencies() ([]string, error) {
 	data, err := s.client.get("/simple/supported_vs_currencies", nil)
 	if err != nil {

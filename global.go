@@ -2,10 +2,12 @@ package coingecko
 
 import "encoding/json"
 
+// GlobalAPI provides global cryptocurrency market data.
 type GlobalAPI struct {
 	client *Client
 }
 
+// Crypto returns global cryptocurrency market data.
 func (g *GlobalAPI) Crypto() (map[string]interface{}, error) {
 	data, err := g.client.get("/global", nil)
 	if err != nil {
@@ -20,6 +22,7 @@ func (g *GlobalAPI) Crypto() (map[string]interface{}, error) {
 	return result, nil
 }
 
+// DeFi returns global decentralized-finance market data.
 func (g *GlobalAPI) DeFi() (map[string]interface{}, error) {
 	data, err := g.client.get("/global/decentralized_finance_defi", nil)
 	if err != nil {
@@ -34,6 +37,7 @@ func (g *GlobalAPI) DeFi() (map[string]interface{}, error) {
 	return result, nil
 }
 
+// MarketCapChart returns global market-cap history for a currency.
 func (g *GlobalAPI) MarketCapChart(days int, vsCurrency string) (map[string]interface{}, error) {
 	params := map[string]string{
 		"days":        intToString(days),

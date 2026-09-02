@@ -10,11 +10,13 @@ import (
 	"time"
 )
 
+// Base URLs for the CoinGecko Demo and Pro APIs.
 const (
 	BaseURLFree = "https://api.coingecko.com/api/v3"
 	BaseURLPro  = "https://pro-api.coingecko.com/api/v3"
 )
 
+// Client performs HTTP requests to the CoinGecko API.
 type Client struct {
 	httpClient *http.Client
 	baseURL    string
@@ -22,35 +24,58 @@ type Client struct {
 	isPro      bool
 }
 
+// ClientOption configures a Client during construction.
 type ClientOption func(*Client)
 
+// APIError is returned when the CoinGecko API responds with a non-success status.
+// Body contains the response body supplied by the API, when available.
+type APIError struct {
+	StatusCode int
+	Body       string
+}
+
+func (e *APIError) Error() string {
+	return fmt.Sprintf("CoinGecko API request failed with status %d: %s", e.StatusCode, e.Body)
+}
+
+// WithAPIKey configures the API key used to authenticate requests.
 func WithAPIKey(apiKey string) ClientOption {
 	return func(c *Client) {
 		c.apiKey = apiKey
 	}
 }
 
+// WithProAPI selects the Pro API when isPro is true, or the Demo API otherwise.
 func WithProAPI(isPro bool) ClientOption {
 	return func(c *Client) {
 		c.isPro = isPro
+		c.baseURL = BaseURLFree
 		if isPro {
 			c.baseURL = BaseURLPro
 		}
 	}
 }
 
+// WithHTTPClient uses httpClient for requests when it is non-nil.
 func WithHTTPClient(httpClient *http.Client) ClientOption {
 	return func(c *Client) {
-		c.httpClient = httpClient
+		if httpClient != nil {
+			c.httpClient = httpClient
+		}
 	}
 }
 
+// WithTimeout sets the HTTP client timeout.
 func WithTimeout(timeout time.Duration) ClientOption {
 	return func(c *Client) {
+		if c.httpClient == nil {
+			c.httpClient = &http.Client{}
+		}
 		c.httpClient.Timeout = timeout
 	}
 }
 
+// NewClient creates a Client with the supplied options.
 func NewClient(options ...ClientOption) *Client {
 	client := &Client{
 		httpClient: &http.Client{
@@ -60,7 +85,9 @@ func NewClient(options ...ClientOption) *Client {
 	}
 
 	for _, option := range options {
-		option(client)
+		if option != nil {
+			option(client)
+		}
 	}
 
 	return client
@@ -84,7 +111,11 @@ func (c *Client) request(method, endpoint string, params map[string]string) ([]b
 
 	req.Header.Set("Accept", "application/json")
 	if c.apiKey != "" {
-		req.Header.Set("x-cg-pro-api-key", c.apiKey)
+		if c.isPro {
+			req.Header.Set("x-cg-pro-api-key", c.apiKey)
+		} else {
+			req.Header.Set("x-cg-demo-api-key", c.apiKey)
+		}
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -99,7 +130,7 @@ func (c *Client) request(method, endpoint string, params map[string]string) ([]b
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(body))
+		return nil, &APIError{StatusCode: resp.StatusCode, Body: string(body)}
 	}
 
 	return body, nil
@@ -133,4 +164,8 @@ func boolToString(b bool) string {
 
 func intToString(i int) string {
 	return fmt.Sprintf("%d", i)
+}
+
+func escapePathSegment(value string) string {
+	return url.PathEscape(value)
 }
