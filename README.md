@@ -1,39 +1,32 @@
-# Coingecko Golang Client
+# CoinGecko Go Client
 
 ![CoinGecko Golang SDK](https://i.postimg.cc/rpL6MPf7/coingecko-golang-hero-github.jpg)
 
 [![CI](https://github.com/tigusigalpa/coingecko-go/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/ci.yml)
 [![Tests](https://github.com/tigusigalpa/coingecko-go/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/test.yml)
-[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat-square&logo=go)](https://golang.org/)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-[![CodeQL](https://github.com/tigusigalpa/coingecko-go/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tigusigalpa/coingecko-go/graph/badge.svg)](https://codecov.io/gh/tigusigalpa/coingecko-go)
-[![GitHub Release](https://img.shields.io/github/v/release/tigusigalpa/coingecko-go?style=flat-square)](https://github.com/tigusigalpa/coingecko-go/releases)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue?style=flat-square&logo=go)](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/tigusigalpa/coingecko-go.svg)](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
+[![Go version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat-square&logo=go)](https://go.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-Go client for the [CoinGecko API](https://docs.coingecko.com). Prices, market data, charts, exchanges, NFTs, DeFi, and WebSocket subscriptions with minimal dependencies.
+A small, practical Go client for the [CoinGecko API](https://docs.coingecko.com). Use it to fetch prices, markets, charts, exchanges, NFTs, treasury data, and to connect to CoinGecko's live WebSocket streams—without hand-building URLs or authentication headers.
 
-**Package:** [pkg.go.dev/github.com/tigusigalpa/coingecko-go](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
+> The package intentionally stays close to CoinGecko's API. Request options are typed; where API response schemas are broad or evolve frequently, responses are returned as `map[string]interface{}`.
 
-[Installation](#installation) • [Quick Start](#quick-start) • [API Reference](#api-reference) • [Examples](#examples)
+**Documentation:** [pkg.go.dev/github.com/tigusigalpa/coingecko-go](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
 
----
+## Contents
 
-## Features
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Authentication](#authentication)
+- [Common tasks](#common-tasks)
+- [WebSocket streams](#websocket-streams)
+- [Endpoint groups](#endpoint-groups)
+- [Errors, timeouts, and rate limits](#errors-timeouts-and-rate-limits)
+- [Examples and development](#examples-and-development)
 
-- CoinGecko API v3 endpoint groups: Simple, Coins, Contracts, Exchanges, Derivatives, NFTs, Categories, Global, Search, Ping
-- Demo and Pro API key authentication
-- Authenticated WebSocket connection and subscription-message helpers for live feeds
-- Configurable HTTP client, timeouts, custom transport
-- Minimal dependencies — standard library + `gorilla/websocket`
-- Tested, with runnable examples in `examples/`
-
-## Requirements
-
-- Go 1.21+
-- CoinGecko API key (optional, for Pro tier)
-
-## Installation
+## Install
 
 ```bash
 go get github.com/tigusigalpa/coingecko-go
@@ -43,423 +36,277 @@ go get github.com/tigusigalpa/coingecko-go
 import coingecko "github.com/tigusigalpa/coingecko-go"
 ```
 
-## Quick Start
+Requirements:
+
+- Go 1.21 or newer
+- A CoinGecko Demo or Pro API key for authenticated access
+
+## Quick start
+
+Fetch the current price of Bitcoin and Ethereum in USD. A nil options value keeps the request minimal.
 
 ```go
 package main
 
 import (
-    "fmt"
-    "log"
-    
-    coingecko "github.com/tigusigalpa/coingecko-go"
+	"fmt"
+	"log"
+
+	coingecko "github.com/tigusigalpa/coingecko-go"
 )
 
 func main() {
-    cg := coingecko.New()
-    
-    prices, err := cg.Simple().Price(
-        []string{"bitcoin"},
-        []string{"usd"},
-        nil,
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    fmt.Printf("Bitcoin: $%.2f\n", prices["bitcoin"]["usd"])
+	cg := coingecko.New()
+
+	prices, err := cg.Simple().Price(
+		[]string{"bitcoin", "ethereum"},
+		[]string{"usd"},
+		nil,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("BTC: $%.2f\n", prices["bitcoin"]["usd"])
+	fmt.Printf("ETH: $%.2f\n", prices["ethereum"]["usd"])
 }
 ```
 
-### Pro API
+## Authentication
+
+The client selects the correct authentication header automatically:
+
+- `WithAPIKey` uses the Demo API endpoint and its Demo key header.
+- Adding `WithProAPI(true)` switches to the Pro endpoint and its Pro key header.
+
+Keep keys outside source control. Environment variables are the simplest option for local apps and services.
 
 ```go
-cg := coingecko.New(
-    coingecko.WithAPIKey("your-api-key"),
-    coingecko.WithProAPI(true),
+apiKey := os.Getenv("COINGECKO_API_KEY")
+
+// Demo API
+demo := coingecko.New(coingecko.WithAPIKey(apiKey))
+
+// Pro API
+pro := coingecko.New(
+	coingecko.WithAPIKey(apiKey),
+	coingecko.WithProAPI(true),
 )
 ```
 
-### WebSocket
+For the available plans and their endpoint access, see the [official CoinGecko documentation](https://docs.coingecko.com).
 
-WebSocket access requires a Pro API key and `WithProAPI(true)`. Subscribe to a
-channel first, then send the channel's data message through the returned connection:
+## Common tasks
+
+### Request price extras
+
+```go
+prices, err := cg.Simple().Price(
+	[]string{"bitcoin", "ethereum"},
+	[]string{"usd", "eur"},
+	&coingecko.SimplePriceOptions{
+		IncludeMarketCap:      true,
+		Include24hrVol:        true,
+		Include24hrChange:     true,
+		IncludeLastUpdatedAt:  true,
+	},
+)
+```
+
+### Browse market leaders
+
+Optional API parameters are pointers so you can omit them precisely.
+
+```go
+order := "market_cap_desc"
+perPage := 25
+page := 1
+
+markets, err := cg.Coins().Markets("usd", &coingecko.MarketsOptions{
+	Order:    &order,
+	PerPage:  &perPage,
+	Page:     &page,
+	Sparkline: true,
+})
+```
+
+### Look up a token contract
+
+```go
+token, err := cg.Contract().Coin(
+	"ethereum",
+	"0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", // UNI
+)
+```
+
+### Use a custom HTTP client
+
+Bring your own transport when you need a proxy, custom certificates, retries, or connection-pool settings.
+
+```go
+httpClient := &http.Client{
+	Timeout: 20 * time.Second,
+	Transport: &http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 10,
+		IdleConnTimeout:     90 * time.Second,
+	},
+}
+
+cg := coingecko.New(
+	coingecko.WithHTTPClient(httpClient),
+	coingecko.WithAPIKey(os.Getenv("COINGECKO_API_KEY")),
+)
+```
+
+`WithTimeout` is a convenient alternative when you only need to set a timeout:
+
+```go
+cg := coingecko.New(coingecko.WithTimeout(15 * time.Second))
+```
+
+## WebSocket streams
+
+WebSocket access requires a Pro API key and `WithProAPI(true)`. The WebSocket protocol has two steps: subscribe to a channel, then send the channel-specific configuration message.
 
 ```go
 package main
 
 import (
-    "context"
-    "log"
+	"context"
+	"log"
+	"os"
 
-    coingecko "github.com/tigusigalpa/coingecko-go"
-    "github.com/gorilla/websocket"
+	coingecko "github.com/tigusigalpa/coingecko-go"
+	"github.com/gorilla/websocket"
 )
 
 func main() {
-	ctx := context.Background()
 	cg := coingecko.New(
-		coingecko.WithAPIKey("your-pro-api-key"),
+		coingecko.WithAPIKey(os.Getenv("COINGECKO_API_KEY")),
 		coingecko.WithProAPI(true),
 	)
 
-	conn, _, err := cg.WebSocket().Connect(ctx)
+	conn, _, err := cg.WebSocket().Connect(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer conn.Close()
 
-	subscribe, _ := cg.WebSocket().CreateChannelSubscription(coingecko.WebSocketChannelSimplePrice)
-	prices, _ := cg.WebSocket().CreateSimplePriceSubscription([]string{"bitcoin"}, []string{"usd"})
-	_ = conn.WriteMessage(websocket.TextMessage, []byte(subscribe))
-	_ = conn.WriteMessage(websocket.TextMessage, []byte(prices))
+	subscribe, err := cg.WebSocket().CreateChannelSubscription(coingecko.WebSocketChannelSimplePrice)
+	if err != nil {
+		log.Fatal(err)
+	}
+	configure, err := cg.WebSocket().CreateSimplePriceSubscription([]string{"bitcoin"}, []string{"usd"})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(subscribe)); err != nil {
+		log.Fatal(err)
+	}
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(configure)); err != nil {
+		log.Fatal(err)
+	}
+
+	for {
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("update: %s", message)
+	}
 }
 ```
 
-### Custom HTTP Client
+Available channel constants:
+
+- `WebSocketChannelSimplePrice`
+- `WebSocketChannelOnchainSimpleTokenPrice`
+- `WebSocketChannelOnchainTrade`
+- `WebSocketChannelOnchainOHLCV`
+
+For long-running applications, handle disconnects and reconnect with backoff. The server uses normal WebSocket ping/pong control frames; do not send a JSON `ping` message.
+
+## Endpoint groups
+
+The API is organised by domain, so calls are easy to discover from `cg`:
+
+| Group | Typical use |
+| --- | --- |
+| `Simple()` | Current coin and token prices; supported currencies |
+| `Coins()` | Coin lists, markets, metadata, tickers, history, charts, OHLC, supply charts |
+| `Contract()` | ERC-20 and other token data by platform and contract address |
+| `AssetPlatforms()` | Supported platforms and token lists |
+| `Categories()` | Coin categories and category market data |
+| `Exchanges()` | Exchange lists, tickers, and volume charts |
+| `Derivatives()` | Derivatives tickers and exchanges |
+| `Entities()` | Public-company and entity crypto treasury data |
+| `NFTs()` | NFT collections, markets, tickers, and charts |
+| `ExchangeRates()` | BTC exchange rates |
+| `Global()` | Global crypto and DeFi market statistics |
+| `Search()` | Search and trending results |
+| `Ping()` | Service status and Pro API key usage |
+| `WebSocket()` | Live price, onchain token, trade, and OHLCV stream helpers |
+
+The complete method-level reference is available on [pkg.go.dev](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go).
+
+## Errors, timeouts, and rate limits
+
+Every API method returns an error. HTTP responses outside the 2xx range are returned as `*coingecko.APIError`, which exposes the status code and API response body.
 
 ```go
-httpClient := &http.Client{
-    Timeout: 60 * time.Second,
-    Transport: &http.Transport{
-        MaxIdleConns:        100,
-        MaxIdleConnsPerHost: 10,
-        IdleConnTimeout:     90 * time.Second,
-    },
-}
-
-cg := coingecko.New(
-    coingecko.WithHTTPClient(httpClient),
-    coingecko.WithAPIKey("your-api-key"),
-    coingecko.WithProAPI(true),
-)
-```
-
-### Pointer Helpers
-
-Many options use pointers. A couple of helpers make this less verbose:
-
-```go
-func stringPtr(s string) *string { return &s }
-func intPtr(i int) *int { return &i }
-```
-
----
-
-## API Reference
-
-### Simple
-
-Prices and supported currencies.
-
-```go
-// Get prices (multiple coins, multiple currencies, with extras)
-prices, err := cg.Simple().Price(
-    []string{"bitcoin", "ethereum"},
-    []string{"usd", "eur"},
-    &coingecko.SimplePriceOptions{
-        IncludeMarketCap:  true,
-        Include24hrVol:    true,
-        Include24hrChange: true,
-    },
-)
-
-// Token price by contract address
-tokenPrices, err := cg.Simple().TokenPrice(
-    "ethereum",
-    []string{"0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"}, // UNI
-    []string{"usd"},
-    nil,
-)
-
-// Supported vs currencies
-currencies, err := cg.Simple().SupportedVsCurrencies()
-```
-
-### Coins
-
-Market data, charts, OHLC, detailed info.
-
-```go
-// List all coins
-coins, err := cg.Coins().List(false)
-
-// Market rankings
-perPage := 100
-page := 1
-markets, err := cg.Coins().Markets("usd", &coingecko.MarketsOptions{
-    Order:   stringPtr("market_cap_desc"),
-    PerPage: &perPage,
-    Page:    &page,
-})
-
-// Detailed coin data
-bitcoin, err := cg.Coins().Coin("bitcoin", &coingecko.CoinOptions{
-    MarketData: true,
-    Tickers:    true,
-    Sparkline:  true,
-})
-
-// Price chart (30 days, daily interval)
-chart, err := cg.Coins().MarketChart("bitcoin", "usd", "30",
-    &coingecko.MarketChartOptions{Interval: stringPtr("daily")},
-)
-
-// Chart for a specific time range (unix timestamps)
-rangeData, err := cg.Coins().MarketChartRange("ethereum", "usd", 1609459200, 1640995200, nil)
-
-// OHLC candlestick data
-ohlc, err := cg.Coins().OHLC("bitcoin", "usd", "7", nil)
-
-// Top gainers/losers
-duration := "24h"
-topCoins := 100
-movers, err := cg.Coins().TopGainersLosers("usd", &duration, &topCoins)
-
-// Recently added
-newCoins, err := cg.Coins().RecentlyAdded()
-```
-
-### Contract
-
-Token data by contract address.
-
-```go
-tokenData, err := cg.Contract().Coin(
-    "ethereum",
-    "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-)
-
-tokenChart, err := cg.Contract().MarketChart(
-    "ethereum",
-    "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-    "usd", "30",
-)
-```
-
-### Asset Platforms
-
-```go
-platforms, err := cg.AssetPlatforms().List(nil)
-
-filter := "nft"
-filtered, err := cg.AssetPlatforms().List(&filter)
-
-tokens, err := cg.AssetPlatforms().TokenLists("ethereum", nil)
-```
-
-### Categories
-
-```go
-categories, err := cg.Categories().List()
-
-order := "market_cap_desc"
-withData, err := cg.Categories().ListWithMarketData(&order)
-```
-
-### Exchanges
-
-```go
-perPage := 100
-page := 1
-exchanges, err := cg.Exchanges().List(&coingecko.ExchangesListOptions{
-    PerPage: &perPage,
-    Page:    &page,
-})
-
-binance, err := cg.Exchanges().Exchange("binance")
-
-tickers, err := cg.Exchanges().Tickers("binance", &coingecko.ExchangeTickersOptions{
-    CoinIDs: []string{"bitcoin", "ethereum"},
-    Page:    &page,
-})
-
-volumeChart, err := cg.Exchanges().VolumeChart("binance", 30)
-```
-
-### Global
-
-```go
-globalData, err := cg.Global().Crypto()
-defiData, err := cg.Global().DeFi()
-marketCapChart, err := cg.Global().MarketCapChart(30, "usd")
-```
-
-### Search
-
-```go
-results, err := cg.Search().Search("bitcoin")
-trending, err := cg.Search().Trending()
-```
-
-### Ping
-
-```go
-status, err := cg.Ping().Ping()
-fmt.Println(status.GeckoSays) // "(V3) To the Moon!"
-
-// Pro API only
-usage, err := cg.Ping().APIUsage()
-```
-
----
-
-## Examples
-
-### Portfolio Tracker
-
-```go
-package main
-
-import (
-    "fmt"
-    "log"
-    
-    coingecko "github.com/tigusigalpa/coingecko-go"
-)
-
-func main() {
-    cg := coingecko.New()
-    
-    holdings := map[string]float64{
-        "bitcoin":  0.5,
-        "ethereum": 10,
-        "cardano":  1000,
-    }
-    
-    coinIDs := make([]string, 0, len(holdings))
-    for id := range holdings {
-        coinIDs = append(coinIDs, id)
-    }
-    
-    prices, err := cg.Simple().Price(coinIDs, []string{"usd"}, nil)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    total := 0.0
-    for id, amount := range holdings {
-        price := prices[id]["usd"].(float64)
-        total += price * amount
-    }
-    
-    fmt.Printf("Portfolio: $%.2f\n", total)
+prices, err := cg.Simple().Price([]string{"bitcoin"}, []string{"usd"}, nil)
+if err != nil {
+	var apiErr *coingecko.APIError
+	if errors.As(err, &apiErr) {
+		log.Printf("CoinGecko returned %d: %s", apiErr.StatusCode, apiErr.Body)
+		return
+	}
+	log.Printf("request failed: %v", err)
+	return
 }
 ```
 
-### Price Alerts
+CoinGecko rate limits and endpoint availability vary by plan. Treat 429 responses as a signal to slow down, cache frequently requested data, and use retries with exponential backoff where appropriate. Avoid logging API keys or placing them in client-side applications.
 
-```go
-package main
+## Examples and development
 
-import (
-    "fmt"
-    "log"
-    
-    coingecko "github.com/tigusigalpa/coingecko-go"
-)
+Runnable examples live in [`examples/`](examples/):
 
-type Alert struct {
-    CoinID      string
-    TargetPrice float64
-    Type        string // "above" or "below"
-}
-
-func main() {
-    cg := coingecko.New()
-    
-    alerts := []Alert{
-        {CoinID: "bitcoin", TargetPrice: 50000, Type: "above"},
-        {CoinID: "ethereum", TargetPrice: 3000, Type: "below"},
-    }
-    
-    ids := make([]string, 0)
-    seen := map[string]bool{}
-    for _, a := range alerts {
-        if !seen[a.CoinID] {
-            ids = append(ids, a.CoinID)
-            seen[a.CoinID] = true
-        }
-    }
-    
-    prices, err := cg.Simple().Price(ids, []string{"usd"}, nil)
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    for _, a := range alerts {
-        price := prices[a.CoinID]["usd"].(float64)
-        if (a.Type == "above" && price >= a.TargetPrice) ||
-            (a.Type == "below" && price <= a.TargetPrice) {
-            fmt.Printf("ALERT: %s is $%.2f (target: $%.0f %s)\n",
-                a.CoinID, price, a.TargetPrice, a.Type)
-        }
-    }
-}
-```
-
-### Runnable Examples
-
-There are ready-to-run examples in the `examples/` directory:
+- `basic` — prices and API status
+- `portfolio` — portfolio value calculation
+- `market_analysis` — market leaders and global data
+- `defi_tracker` — token contracts and DeFi categories
 
 ```bash
-cd examples/basic && go run main.go
-cd examples/portfolio && go run main.go
-cd examples/market_analysis && go run main.go
-cd examples/defi_tracker && go run main.go
+cd examples/basic && go run .
+cd examples/portfolio && go run .
+cd examples/market_analysis && go run .
+cd examples/defi_tracker && go run .
 ```
 
----
-
-## Rate Limits
-
-Keep in mind the CoinGecko rate limits:
-
-- **Free**: 10–50 calls/min
-- **Pro**: higher limits depending on plan
-
-If you're hitting limits, add caching on your side — the library doesn't do that for you.
-
-## Testing
+To verify the library locally:
 
 ```bash
 go test ./...
-go test -v -race -coverprofile=coverage.out ./...
-
-# or via Makefile
-make test
-make build
-make lint
+go test -race -covermode=atomic -coverprofile=coverage.out ./...
+go vet ./...
 ```
+
+The repository checks formatting, static analysis, tests, security scanning, and Codecov coverage in CI. Contributions are welcome—please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ## Security
 
-Don't hardcode API keys. Use environment variables:
-
-```go
-apiKey := os.Getenv("COINGECKO_API_KEY")
-cg := coingecko.New(
-    coingecko.WithAPIKey(apiKey),
-    coingecko.WithProAPI(true),
-)
-```
-
-If you find a security issue, email **sovletig@gmail.com** instead of opening a public issue.
-
-## Contributing
-
-PRs are welcome. Fork, branch, add tests, run `make test`, open a PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+If you believe you have found a security vulnerability, please email **sovletig@gmail.com** instead of filing a public issue.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
-
-## Author
-
-[Igor Sazonov](https://github.com/tigusigalpa) — sovletig@gmail.com
+Released under the [MIT License](LICENSE).
 
 ## Links
 
-- [CoinGecko API docs](https://docs.coingecko.com)
-- [CoinGecko Pro](https://www.coingecko.com/en/api)
+- [CoinGecko API documentation](https://docs.coingecko.com)
+- [CoinGecko API plans](https://www.coingecko.com/en/api)
+- [Changelog](CHANGELOG.md)
 - [Issues](https://github.com/tigusigalpa/coingecko-go/issues)
