@@ -11,6 +11,13 @@
 # Output of the go coverage tool
 *.out
 
+# Local Go build and test caches
+.gocache/
+.gotmp/
+.tmp-go-cache/
+coverage/
+test-results/
+
 # Dependency directories
 vendor/
 
@@ -28,6 +35,11 @@ go.work
 .DS_Store
 Thumbs.db
 
-# Examples config
-examples/.env
-examples/config.json
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+dist/
+build/

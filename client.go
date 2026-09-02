@@ -1,7 +1,6 @@
 package coingecko
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -138,17 +137,6 @@ func (c *Client) request(method, endpoint string, params map[string]string) ([]b
 
 func (c *Client) get(endpoint string, params map[string]string) ([]byte, error) {
 	return c.request(http.MethodGet, endpoint, params)
-}
-
-func (c *Client) post(endpoint string, params map[string]string) ([]byte, error) {
-	return c.request(http.MethodPost, endpoint, params)
-}
-
-func (c *Client) unmarshalResponse(data []byte, v interface{}) error {
-	if err := json.Unmarshal(data, v); err != nil {
-		return fmt.Errorf("failed to unmarshal response: %w", err)
-	}
-	return nil
 }
 
 func joinStrings(items []string) string {
