@@ -1,9 +1,10 @@
-# CoinGecko Go Client
+# Coingecko Golang Client/SDK/Library
 
 ![CoinGecko Golang SDK](https://i.postimg.cc/rpL6MPf7/coingecko-golang-hero-github.jpg)
 
 [![CI](https://github.com/tigusigalpa/coingecko-go/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/ci.yml)
 [![Tests](https://github.com/tigusigalpa/coingecko-go/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/test.yml)
+[![CodeQL](https://github.com/tigusigalpa/coingecko-go/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/tigusigalpa/coingecko-go/actions/workflows/codeql.yml)
 [![Codecov](https://codecov.io/gh/tigusigalpa/coingecko-go/graph/badge.svg)](https://codecov.io/gh/tigusigalpa/coingecko-go)
 [![Go Reference](https://pkg.go.dev/badge/github.com/tigusigalpa/coingecko-go.svg)](https://pkg.go.dev/github.com/tigusigalpa/coingecko-go)
 [![Go version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat-square&logo=go)](https://go.dev/)
