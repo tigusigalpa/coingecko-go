@@ -18,7 +18,7 @@ jobs:
           go test -race -covermode=atomic -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage.out
           flags: unittests
